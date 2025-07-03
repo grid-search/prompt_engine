@@ -6,6 +6,7 @@ defmodule PromptEngine.MixProject do
       app: :prompt_engine,
       version: "0.1.0",
       elixir: "~> 1.16",
+      elixirc_paths: elixirc_paths(Mix.env()),
       start_permanent: Mix.env() == :prod,
       deps: deps(),
       aliases: aliases(),
@@ -19,6 +20,10 @@ defmodule PromptEngine.MixProject do
       ]
     ]
   end
+
+  # Specifies which paths to compile per environment.
+  defp elixirc_paths(:test), do: ["lib", "test/support"]
+  defp elixirc_paths(_), do: ["lib"]
 
   # Run "mix help compile.app" to learn about applications.
   def application do
@@ -55,12 +60,14 @@ defmodule PromptEngine.MixProject do
     [
       # Local development - more lenient
       lint: [
+        "compile --warnings-as-errors",
         "format",
         "credo --strict",
         "dialyzer --ignore-exit-status"
       ],
       # CI/CD - strict checks
       "lint.ci": [
+        "compile --warnings-as-errors",
         "format --check-formatted",
         "credo --strict",
         "dialyzer"
