@@ -55,6 +55,7 @@ This is a **library package** that gets installed into existing Phoenix applicat
 
 ### Code Quality Enforcement
 **CRITICAL**: Always run `mix lint` before completing any task. All changes must pass:
+- ALWAYS TRIM TRAILING WHITESPACE!!!
 - Code formatting (`mix format --check-formatted`)
 - Static analysis (`mix credo --strict`)
 - Type analysis (`mix dialyzer`)
