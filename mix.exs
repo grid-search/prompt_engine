@@ -51,7 +51,10 @@ defmodule PromptEngine.MixProject do
 
       # Development and testing tools
       {:credo, "~> 1.7", only: [:dev, :test], runtime: false},
-      {:dialyxir, "~> 1.4", only: [:dev, :test], runtime: false}
+      {:dialyxir, "~> 1.4", only: [:dev, :test], runtime: false},
+
+      # SQLite adapter for testing
+      {:ecto_sqlite3, "~> 0.17", only: [:test], runtime: false}
     ]
   end
 
