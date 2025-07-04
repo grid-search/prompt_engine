@@ -67,12 +67,20 @@ This is a **library package** that gets installed into existing Phoenix applicat
 - **Igniter 0.6+**: Installation automation and project patching
 - **Jason**: JSON handling
 - **Telemetry**: Application monitoring
-- **Ecto SQLite3**: SQLite adapter for testing (PostgreSQL for production)
+- **Ecto SQLite3**: SQLite adapter for testing
+- **Postgrex**: PostgreSQL adapter for testing and production
 
 ### Configuration Notes
 - **Test Environment**: Lint commands run in `:test` environment
 - **Elixir Version**: Requires Elixir ~> 1.16
-- **Database Support**: Currently SQLite for testing, PostgreSQL support planned
+- **Database Support**: SQLite and PostgreSQL for all environments
+
+### Development Environment
+- **Docker PostgreSQL**: Use `docker-compose up` to start PostgreSQL 17 for testing
+- **Database Testing**:
+  - `mix test.lite` - Run SQLite tests only
+  - `mix test.postgres` - Run PostgreSQL tests only (requires Docker or local PostgreSQL)
+  - `mix test` - Run all tests
 
 ## Required Practices
 
