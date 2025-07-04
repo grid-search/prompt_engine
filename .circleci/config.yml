@@ -1,0 +1,142 @@
+version: 2.1
+
+# Define executors for different Elixir versions
+executors:
+  elixir-1-16:
+    docker:
+      - image: elixir:1.16.3-otp-25
+        environment:
+          MIX_ENV: test
+      - image: postgres:17
+        environment:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: prompt_engine_test
+    working_directory: ~/repo
+
+  elixir-1-17:
+    docker:
+      - image: elixir:1.17.3-otp-26
+        environment:
+          MIX_ENV: test
+      - image: postgres:17
+        environment:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: prompt_engine_test
+    working_directory: ~/repo
+
+  elixir-1-18:
+    docker:
+      - image: elixir:1.18.0-otp-27
+        environment:
+          MIX_ENV: test
+      - image: postgres:17
+        environment:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: prompt_engine_test
+    working_directory: ~/repo
+
+  elixir-lint:
+    docker:
+      - image: elixir:1.18.0-otp-27
+        environment:
+          MIX_ENV: test
+    working_directory: ~/repo
+
+# Define commands for common setup steps
+commands:
+  setup_elixir:
+    description: "Setup Elixir environment"
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - deps-cache-v1-{{ .Environment.CIRCLE_JOB }}-{{ checksum "mix.lock" }}
+            - deps-cache-v1-{{ .Environment.CIRCLE_JOB }}-
+      - restore_cache:
+          keys:
+            - build-cache-v1-{{ .Environment.CIRCLE_JOB }}-{{ .Branch }}-{{ .Revision }}
+            - build-cache-v1-{{ .Environment.CIRCLE_JOB }}-{{ .Branch }}-
+            - build-cache-v1-{{ .Environment.CIRCLE_JOB }}-
+      - run:
+          name: Install Hex and Rebar
+          command: |
+            mix local.hex --force
+            mix local.rebar --force
+      - run:
+          name: Install dependencies
+          command: mix deps.get
+      - save_cache:
+          key: deps-cache-v1-{{ .Environment.CIRCLE_JOB }}-{{ checksum "mix.lock" }}
+          paths:
+            - deps
+      - run:
+          name: Compile dependencies
+          command: mix deps.compile
+      - run:
+          name: Compile application
+          command: mix compile --warnings-as-errors
+      - save_cache:
+          key: build-cache-v1-{{ .Environment.CIRCLE_JOB }}-{{ .Branch }}-{{ .Revision }}
+          paths:
+            - _build
+
+  wait_for_postgres:
+    description: "Wait for PostgreSQL to be ready"
+    steps:
+      - run:
+          name: Wait for PostgreSQL
+          command: |
+            dockerize -wait tcp://localhost:5432 -timeout 1m
+
+# Define jobs
+jobs:
+  lint:
+    executor: elixir-lint
+    steps:
+      - setup_elixir
+      - run:
+          name: Check formatting
+          command: mix format --check-formatted
+      - run:
+          name: Run Credo
+          command: mix credo --strict
+
+  test-elixir-1-16:
+    executor: elixir-1-16
+    steps:
+      - setup_elixir
+      - wait_for_postgres
+      - run:
+          name: Run tests
+          command: mix test
+
+  test-elixir-1-17:
+    executor: elixir-1-17
+    steps:
+      - setup_elixir
+      - wait_for_postgres
+      - run:
+          name: Run tests
+          command: mix test
+
+  test-elixir-1-18:
+    executor: elixir-1-18
+    steps:
+      - setup_elixir
+      - wait_for_postgres
+      - run:
+          name: Run tests
+          command: mix test
+
+# Define workflows
+workflows:
+  version: 2
+  test_and_lint:
+    jobs:
+      - lint
+      - test-elixir-1-16
+      - test-elixir-1-17
+      - test-elixir-1-18
