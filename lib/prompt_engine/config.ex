@@ -55,8 +55,8 @@ defmodule PromptEngine.Config do
   defp detect_adapter_from_repo(repo) do
     case repo.__adapter__() do
       Ecto.Adapters.SQLite3 -> :sqlite
+      Ecto.Adapters.Postgres -> :postgres
       # TODO: Add support for additional adapters
-      # Ecto.Adapters.Postgres -> :postgres
       # Ecto.Adapters.MyXQL -> :mysql
       _ -> :unknown
     end

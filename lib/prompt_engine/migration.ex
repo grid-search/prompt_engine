@@ -47,8 +47,8 @@ defmodule PromptEngine.Migration do
 
     case adapter do
       :sqlite -> migrated_version_sqlite(repo)
+      :postgres -> migrated_version_postgres(repo)
       # TODO: Add support for other adapters
-      # :postgres -> migrated_version_postgres(repo)
       # :mysql -> migrated_version_mysql(repo)
       _ -> @initial_version
     end
@@ -56,6 +56,19 @@ defmodule PromptEngine.Migration do
 
   defp migrated_version_sqlite(repo) do
     result = repo.query("SELECT name FROM sqlite_master WHERE type='table' AND name='prompts'")
+
+    case result do
+      {:ok, %{rows: [["prompts"]]}} -> @current_version
+      {:ok, %{rows: []}} -> @initial_version
+      _ -> @initial_version
+    end
+  end
+
+  defp migrated_version_postgres(repo) do
+    result =
+      repo.query(
+        "SELECT table_name FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'prompts'"
+      )
 
     case result do
       {:ok, %{rows: [["prompts"]]}} -> @current_version
@@ -99,7 +112,7 @@ defmodule PromptEngine.Migration do
       add :version_number, :integer, null: false
       add :state, :string, null: false, default: "draft"
       add :provider, :string, null: false
-      add :messages, :map, null: false, default: []
+      add :messages, :map, null: false, default: "{}"
       add :model_name, :string, null: false
       add :model_settings, :map, default: %{}
 

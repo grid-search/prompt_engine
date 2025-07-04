@@ -3,12 +3,12 @@ defmodule PromptEngine.Case do
 
   use ExUnit.CaseTemplate
 
+  alias Ecto.Adapters.SQL.Sandbox
   alias PromptEngine.{Migration, Prompts}
-  alias PromptEngine.Test.LiteRepo
+  alias PromptEngine.Test.{LiteRepo, PGRepo}
 
   # Future aliases for additional database repos when multi-database support is added:
-  # alias PromptEngine.Test.{Repo, MySQLRepo}
-  # alias Ecto.Adapters.SQL.Sandbox
+  # alias PromptEngine.Test.MySQLRepo
 
   defmodule TestMigration do
     @moduledoc false
@@ -24,44 +24,47 @@ defmodule PromptEngine.Case do
       import PromptEngine.Case
 
       alias PromptEngine.{Migration, Prompts}
-      alias PromptEngine.Test.LiteRepo
+      alias PromptEngine.Test.{LiteRepo, PGRepo}
 
       # Future aliases for multi-database testing:
-      # alias PromptEngine.Test.{Repo, MySQLRepo}
+      # alias PromptEngine.Test.MySQLRepo
     end
   end
 
-  setup _context do
-    create_tables_if_needed()
+  setup context do
+    # Set up SQL Sandbox for PostgreSQL repos in manual mode
+    if context[:postgres] do
+      :ok = Sandbox.checkout(PGRepo)
+      # Migration repo uses auto mode globally, no need to checkout
+    end
+
+    create_tables_if_needed(context)
 
     on_exit(:cleanup, fn ->
       try do
-        LiteRepo.delete_all(PromptEngine.Prompts.PromptVersion)
-        LiteRepo.delete_all(PromptEngine.Prompts.Prompt)
+        if context[:postgres] do
+          PGRepo.delete_all(PromptEngine.Prompts.PromptVersion)
+          PGRepo.delete_all(PromptEngine.Prompts.Prompt)
+        else
+          LiteRepo.delete_all(PromptEngine.Prompts.PromptVersion)
+          LiteRepo.delete_all(PromptEngine.Prompts.Prompt)
+        end
       rescue
         # Tables might not exist
         _ -> :ok
       end
     end)
 
-    # Future PostgreSQL setup with SQL.Sandbox:
-    # When adding PostgreSQL support, add context check:
-    # if context[:postgres] do
-    #   pid = Sandbox.start_owner!(Repo, shared: not context[:async])
-    #   on_exit(fn -> Sandbox.stop_owner(pid) end)
-    # end
-
-    # Future MySQL setup with SQL.Sandbox:
-    # When adding MySQL support, add context check:
-    # if context[:mysql] do
-    #   pid = Sandbox.start_owner!(MySQLRepo, shared: not context[:async])
-    #   on_exit(fn -> Sandbox.stop_owner(pid) end)
-    # end
-
     :ok
   end
 
-  defp create_tables_if_needed do
+  defp create_tables_if_needed(context) do
+    if context[:lite] do
+      create_sqlite_tables_if_needed()
+    end
+  end
+
+  defp create_sqlite_tables_if_needed do
     result =
       LiteRepo.query!("SELECT name FROM sqlite_master WHERE type='table' AND name='prompts'")
 
@@ -75,14 +78,20 @@ defmodule PromptEngine.Case do
 
   @doc """
   Helper to get the appropriate repo based on test context.
-  Currently returns SQLite repo only.
 
-  Future: Will support context-based repo selection:
+  Supports context-based repo selection:
   - context[:lite] -> LiteRepo
-  - context[:postgres] -> Repo  
-  - context[:mysql] -> MySQLRepo
+  - context[:postgres] -> PGRepo
+  - context[:mysql] -> MySQLRepo (future)
   """
-  def get_repo(_context), do: LiteRepo
+  def get_repo(context) do
+    cond do
+      context[:postgres] -> PGRepo
+      context[:lite] -> LiteRepo
+      # Default to SQLite
+      true -> LiteRepo
+    end
+  end
 
   @doc """
   Create a test prompt with default values.
