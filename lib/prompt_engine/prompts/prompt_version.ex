@@ -8,6 +8,7 @@ defmodule PromptEngine.Prompts.PromptVersion do
   use PromptEngine.Schema
 
   alias PromptEngine.Prompts.Prompt
+  alias PromptEngine.Prompts.PromptVersion.Message
 
   @type state :: :draft | :published | :archived
   @type t :: %__MODULE__{
@@ -17,7 +18,7 @@ defmodule PromptEngine.Prompts.PromptVersion do
           version_number: pos_integer(),
           state: state(),
           provider: atom(),
-          content: String.t(),
+          messages: [Message.t()],
           model_name: String.t(),
           model_settings: map(),
           inserted_at: DateTime.t(),
@@ -34,7 +35,7 @@ defmodule PromptEngine.Prompts.PromptVersion do
              :version_number,
              :state,
              :provider,
-             :content,
+             :messages,
              :model_name,
              :model_settings,
              :inserted_at,
@@ -45,7 +46,7 @@ defmodule PromptEngine.Prompts.PromptVersion do
     field :version_number, :integer
     field :state, Ecto.Enum, values: @states, default: :draft
     field :provider, Ecto.Enum, values: @providers
-    field :content, :string
+    embeds_many :messages, Message
     field :model_name, :string
     field :model_settings, :map, default: %{}
 
@@ -64,13 +65,13 @@ defmodule PromptEngine.Prompts.PromptVersion do
       :version_number,
       :state,
       :provider,
-      :content,
       :model_name,
       :model_settings
     ])
-    |> validate_required([:prompt_id, :version_number, :provider, :content, :model_name])
+    |> cast_embed(:messages, required: true)
+    |> validate_required([:prompt_id, :version_number, :provider, :model_name])
     |> validate_number(:version_number, greater_than: 0)
-    |> validate_length(:content, min: 1)
+    |> validate_length(:messages, min: 1)
     |> validate_length(:model_name, min: 1, max: 255)
     |> unique_constraint([:prompt_id, :version_number])
     |> foreign_key_constraint(:prompt_id)

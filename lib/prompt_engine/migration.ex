@@ -99,7 +99,7 @@ defmodule PromptEngine.Migration do
       add :version_number, :integer, null: false
       add :state, :string, null: false, default: "draft"
       add :provider, :string, null: false
-      add :content, :text, null: false
+      add :messages, :map, null: false, default: []
       add :model_name, :string, null: false
       add :model_settings, :map, default: %{}
 

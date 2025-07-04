@@ -9,7 +9,7 @@ defmodule PromptEngine.Prompts.PromptVersionTest do
         prompt_id: "550e8400-e29b-41d4-a716-446655440000",
         version_number: 1,
         provider: :openai,
-        content: "Hello, world!",
+        messages: [%{role: :user, content: "Hello, world!"}],
         model_name: "gpt-4",
         model_settings: %{temperature: 0.7}
       }
@@ -20,7 +20,8 @@ defmodule PromptEngine.Prompts.PromptVersionTest do
       assert changeset.changes.prompt_id == "550e8400-e29b-41d4-a716-446655440000"
       assert changeset.changes.version_number == 1
       assert changeset.changes.provider == :openai
-      assert changeset.changes.content == "Hello, world!"
+      assert length(changeset.changes.messages) == 1
+      assert hd(changeset.changes.messages).changes.content == "Hello, world!"
       assert changeset.changes.model_name == "gpt-4"
       assert changeset.changes.model_settings == %{temperature: 0.7}
     end
@@ -30,7 +31,7 @@ defmodule PromptEngine.Prompts.PromptVersionTest do
         prompt_id: "550e8400-e29b-41d4-a716-446655440000",
         version_number: 1,
         provider: :anthropic,
-        content: "Test content",
+        messages: [%{role: :user, content: "Test content"}],
         model_name: "claude-3-sonnet"
       }
 
@@ -42,7 +43,13 @@ defmodule PromptEngine.Prompts.PromptVersionTest do
     end
 
     test "invalid changeset without prompt_id" do
-      attrs = %{version_number: 1, provider: :openai, content: "Test", model_name: "gpt-4"}
+      attrs = %{
+        version_number: 1,
+        provider: :openai,
+        messages: [%{role: :user, content: "Test"}],
+        model_name: "gpt-4"
+      }
+
       changeset = PromptVersion.changeset(%PromptVersion{}, attrs)
 
       refute changeset.valid?
@@ -53,7 +60,7 @@ defmodule PromptEngine.Prompts.PromptVersionTest do
       attrs = %{
         prompt_id: "550e8400-e29b-41d4-a716-446655440000",
         provider: :openai,
-        content: "Test",
+        messages: [%{role: :user, content: "Test"}],
         model_name: "gpt-4"
       }
 
@@ -67,7 +74,7 @@ defmodule PromptEngine.Prompts.PromptVersionTest do
       attrs = %{
         prompt_id: "550e8400-e29b-41d4-a716-446655440000",
         version_number: 1,
-        content: "Test",
+        messages: [%{role: :user, content: "Test"}],
         model_name: "gpt-4"
       }
 
@@ -77,7 +84,7 @@ defmodule PromptEngine.Prompts.PromptVersionTest do
       assert "can't be blank" in errors_on(changeset).provider
     end
 
-    test "invalid changeset without content" do
+    test "invalid changeset without messages" do
       attrs = %{
         prompt_id: "550e8400-e29b-41d4-a716-446655440000",
         version_number: 1,
@@ -88,7 +95,7 @@ defmodule PromptEngine.Prompts.PromptVersionTest do
       changeset = PromptVersion.changeset(%PromptVersion{}, attrs)
 
       refute changeset.valid?
-      assert "can't be blank" in errors_on(changeset).content
+      assert "can't be blank" in errors_on(changeset).messages
     end
 
     test "invalid changeset without model_name" do
@@ -96,7 +103,7 @@ defmodule PromptEngine.Prompts.PromptVersionTest do
         prompt_id: "550e8400-e29b-41d4-a716-446655440000",
         version_number: 1,
         provider: :openai,
-        content: "Test content"
+        messages: [%{role: :user, content: "Test content"}]
       }
 
       changeset = PromptVersion.changeset(%PromptVersion{}, attrs)
@@ -110,7 +117,7 @@ defmodule PromptEngine.Prompts.PromptVersionTest do
         prompt_id: "550e8400-e29b-41d4-a716-446655440000",
         version_number: 0,
         provider: :openai,
-        content: "Test",
+        messages: [%{role: :user, content: "Test"}],
         model_name: "gpt-4"
       }
 
@@ -125,7 +132,7 @@ defmodule PromptEngine.Prompts.PromptVersionTest do
         prompt_id: "550e8400-e29b-41d4-a716-446655440000",
         version_number: -1,
         provider: :openai,
-        content: "Test",
+        messages: [%{role: :user, content: "Test"}],
         model_name: "gpt-4"
       }
 
@@ -135,19 +142,19 @@ defmodule PromptEngine.Prompts.PromptVersionTest do
       assert "must be greater than 0" in errors_on(changeset).version_number
     end
 
-    test "invalid changeset with empty content" do
+    test "invalid changeset with empty messages" do
       attrs = %{
         prompt_id: "550e8400-e29b-41d4-a716-446655440000",
         version_number: 1,
         provider: :openai,
-        content: "",
+        messages: [],
         model_name: "gpt-4"
       }
 
       changeset = PromptVersion.changeset(%PromptVersion{}, attrs)
 
       refute changeset.valid?
-      assert "can't be blank" in errors_on(changeset).content
+      assert "can't be blank" in errors_on(changeset).messages
     end
 
     test "invalid changeset with model_name too long" do
@@ -155,7 +162,7 @@ defmodule PromptEngine.Prompts.PromptVersionTest do
         prompt_id: "550e8400-e29b-41d4-a716-446655440000",
         version_number: 1,
         provider: :openai,
-        content: "Test",
+        messages: [%{role: :user, content: "Test"}],
         model_name: String.duplicate("a", 256)
       }
 
@@ -170,7 +177,7 @@ defmodule PromptEngine.Prompts.PromptVersionTest do
         prompt_id: "550e8400-e29b-41d4-a716-446655440000",
         version_number: 1,
         provider: :invalid_provider,
-        content: "Test",
+        messages: [%{role: :user, content: "Test"}],
         model_name: "gpt-4"
       }
 
@@ -188,7 +195,7 @@ defmodule PromptEngine.Prompts.PromptVersionTest do
           prompt_id: "550e8400-e29b-41d4-a716-446655440000",
           version_number: 1,
           provider: provider,
-          content: "Test",
+          messages: [%{role: :user, content: "Test"}],
           model_name: "test-model"
         }
 
@@ -202,7 +209,7 @@ defmodule PromptEngine.Prompts.PromptVersionTest do
         prompt_id: "550e8400-e29b-41d4-a716-446655440000",
         version_number: 1,
         provider: :openai,
-        content: "Test",
+        messages: [%{role: :user, content: "Test"}],
         model_name: "gpt-4",
         state: :invalid_state
       }
@@ -221,7 +228,7 @@ defmodule PromptEngine.Prompts.PromptVersionTest do
           prompt_id: "550e8400-e29b-41d4-a716-446655440000",
           version_number: 1,
           provider: :openai,
-          content: "Test",
+          messages: [%{role: :user, content: "Test"}],
           model_name: "gpt-4",
           state: state
         }
@@ -276,7 +283,7 @@ defmodule PromptEngine.Prompts.PromptVersionTest do
         version_number: 1,
         state: :published,
         provider: :openai,
-        content: "Hello, world!",
+        messages: [%{role: :user, content: "Hello, world!"}],
         model_name: "gpt-4",
         model_settings: %{temperature: 0.7},
         inserted_at: ~U[2024-01-01 00:00:00.000000Z],
@@ -292,7 +299,7 @@ defmodule PromptEngine.Prompts.PromptVersionTest do
       assert decoded["version_number"] == 1
       assert decoded["state"] == "published"
       assert decoded["provider"] == "openai"
-      assert decoded["content"] == "Hello, world!"
+      assert decoded["messages"] == [%{"role" => "user", "content" => "Hello, world!"}]
       assert decoded["model_name"] == "gpt-4"
       assert decoded["model_settings"] == %{"temperature" => 0.7}
       assert decoded["inserted_at"] == "2024-01-01T00:00:00.000000Z"

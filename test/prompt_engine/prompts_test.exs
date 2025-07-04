@@ -60,7 +60,7 @@ defmodule PromptEngine.PromptsTest do
       {:ok, version} =
         create_prompt_version(LiteRepo, prompt.id, %{
           provider: :anthropic,
-          content: "Test content",
+          messages: [%{role: :user, content: "Test content"}],
           model_name: "claude-3",
           model_settings: %{temperature: 0.5}
         })
@@ -75,7 +75,8 @@ defmodule PromptEngine.PromptsTest do
         Prompts.get_prompt_version(LiteRepo, version.prompt_id, version.version_number)
 
       assert found_version.id == version.id
-      assert found_version.content == "Test content"
+      assert length(found_version.messages) == 1
+      assert hd(found_version.messages).content == "Test content"
     end
 
     test "version state transitions", %{prompt: prompt} do
@@ -97,11 +98,19 @@ defmodule PromptEngine.PromptsTest do
 
     test "only one published version per prompt", %{prompt: prompt} do
       # Create and publish first version
-      {:ok, version1} = create_prompt_version(LiteRepo, prompt.id, %{content: "Version 1"})
+      {:ok, version1} =
+        create_prompt_version(LiteRepo, prompt.id, %{
+          messages: [%{role: :user, content: "Version 1"}]
+        })
+
       {:ok, published_v1} = Prompts.publish_version(LiteRepo, version1)
 
       # Create and publish second version
-      {:ok, version2} = create_prompt_version(LiteRepo, prompt.id, %{content: "Version 2"})
+      {:ok, version2} =
+        create_prompt_version(LiteRepo, prompt.id, %{
+          messages: [%{role: :user, content: "Version 2"}]
+        })
+
       {:ok, published_v2} = Prompts.publish_version(LiteRepo, version2)
 
       # First version should be archived, second should be published

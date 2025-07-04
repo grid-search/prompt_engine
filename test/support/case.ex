@@ -103,7 +103,7 @@ defmodule PromptEngine.Case do
   def create_prompt_version(repo \\ LiteRepo, prompt_id, attrs \\ %{}) do
     default_attrs = %{
       provider: :openai,
-      content: "Hello, world!",
+      messages: [%{role: :user, content: "Hello, world!"}],
       model_name: "gpt-4",
       model_settings: %{temperature: 0.7}
     }
