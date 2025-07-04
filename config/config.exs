@@ -32,3 +32,10 @@ config :prompt_engine,
 # Future multi-database configuration
 # config :prompt_engine,
 #   ecto_repos: [PromptEngine.Test.LiteRepo, PromptEngine.Test.Repo, PromptEngine.Test.MySQLRepo]
+
+# Import environment specific config
+env_config = "#{Mix.env()}.exs"
+
+if File.exists?(Path.join(__DIR__, env_config)) do
+  import_config env_config
+end
