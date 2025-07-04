@@ -27,7 +27,7 @@ prompt_engine-*.tar
 /priv/plts/*.plt.hash
 
 # SQLite database
-/priv/prompt_engine_test*
+/priv/*.db*
 
 # LSP
 .lexical
