@@ -6,9 +6,18 @@ defmodule PromptEngine.Case do
   alias PromptEngine.{Migration, Prompts}
   alias PromptEngine.Test.LiteRepo
 
-  # Future imports for additional database repos when multi-database support is added:
+  # Future aliases for additional database repos when multi-database support is added:
   # alias PromptEngine.Test.{Repo, MySQLRepo}
   # alias Ecto.Adapters.SQL.Sandbox
+
+  defmodule TestMigration do
+    @moduledoc false
+    use Ecto.Migration
+
+    def up do
+      PromptEngine.Migration.up()
+    end
+  end
 
   using do
     quote do
@@ -23,10 +32,16 @@ defmodule PromptEngine.Case do
   end
 
   setup _context do
-    # SQLite cleanup - simple delete_all since no connection pooling
-    on_exit(fn ->
-      LiteRepo.delete_all(PromptEngine.Prompts.PromptVersion)
-      LiteRepo.delete_all(PromptEngine.Prompts.Prompt)
+    create_tables_if_needed()
+
+    on_exit(:cleanup, fn ->
+      try do
+        LiteRepo.delete_all(PromptEngine.Prompts.PromptVersion)
+        LiteRepo.delete_all(PromptEngine.Prompts.Prompt)
+      rescue
+        # Tables might not exist
+        _ -> :ok
+      end
     end)
 
     # Future PostgreSQL setup with SQL.Sandbox:
@@ -44,6 +59,18 @@ defmodule PromptEngine.Case do
     # end
 
     :ok
+  end
+
+  defp create_tables_if_needed do
+    result =
+      LiteRepo.query!("SELECT name FROM sqlite_master WHERE type='table' AND name='prompts'")
+
+    if Enum.empty?(result.rows) do
+      Ecto.Migrator.up(LiteRepo, 1, TestMigration)
+    end
+  rescue
+    # Tables might already exist or other error
+    _ -> :ok
   end
 
   @doc """

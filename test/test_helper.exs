@@ -1,3 +1,6 @@
+# Configure PromptEngine for testing
+Application.put_env(PromptEngine, :repo, PromptEngine.Test.LiteRepo)
+
 # Start SQLite repo for testing
 PromptEngine.Test.LiteRepo.start_link()
 
