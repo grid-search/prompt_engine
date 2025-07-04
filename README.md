@@ -120,22 +120,20 @@ This project is licensed under the Mozilla Public License 2.0. See the [LICENSE]
 
 ## Database Support
 
-PromptEngine currently supports **SQLite** for development and testing environments. PostgreSQL support is planned for production deployments.
+PromptEngine supports **SQLite** and **PostgreSQL** for all environments. Users can choose their preferred database based on their application needs.
 
 ## Database Roadmap
 
 ### Phase 1: SQLite Foundation (Current)
-- ✅ SQLite adapter for testing
+- ✅ SQLite adapter for all environments
 - ✅ Core schema and migrations
 - ✅ Full CRUD operations
 - ✅ Version management and state transitions
 
-### Phase 2: PostgreSQL Support (Planned)
-- Primary production database support
-- Advanced indexing and performance optimizations
-- JSONB support for model settings
-- Concurrent testing with SQL.Sandbox
-- Production-ready migrations
+### Phase 2: PostgreSQL Support (Current)
+- ✅ PostgreSQL adapter support for all environments
+- ✅ Production-ready migrations
+- ✅ Identical behavior across database engines
 
 ### Phase 3: MySQL Support (Future)
 - Alternative production database option
