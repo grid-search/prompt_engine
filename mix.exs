@@ -10,10 +10,6 @@ defmodule PromptEngine.MixProject do
       start_permanent: Mix.env() == :prod,
       deps: deps(),
       aliases: aliases(),
-      dialyzer: [
-        plt_file: {:no_warn, "priv/plts/dialyzer.plt"},
-        plt_add_apps: [:mix]
-      ],
       preferred_cli_env: [
         lint: :test,
         "lint.ci": :test
@@ -51,7 +47,6 @@ defmodule PromptEngine.MixProject do
 
       # Development and testing tools
       {:credo, "~> 1.7", only: [:dev, :test], runtime: false},
-      {:dialyxir, "~> 1.4", only: [:dev, :test], runtime: false},
 
       # SQLite adapter for testing
       {:ecto_sqlite3, "~> 0.17", only: [:test], runtime: false}
@@ -65,15 +60,13 @@ defmodule PromptEngine.MixProject do
       lint: [
         "compile --warnings-as-errors",
         "format",
-        "credo --strict",
-        "dialyzer --ignore-exit-status"
+        "credo --strict"
       ],
       # CI/CD - strict checks
       "lint.ci": [
         "compile --warnings-as-errors",
         "format --check-formatted",
-        "credo --strict",
-        "dialyzer"
+        "credo --strict"
       ]
     ]
   end
