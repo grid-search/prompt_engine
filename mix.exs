@@ -11,8 +11,10 @@ defmodule PromptEngine.MixProject do
       deps: deps(),
       aliases: aliases(),
       preferred_cli_env: [
-        lint: :test,
-        "lint.ci": :test
+        lint: :dev,
+        "lint.ci": :test,
+        "test.lite": :test,
+        "test.postgres": :test
       ]
     ]
   end
@@ -67,7 +69,10 @@ defmodule PromptEngine.MixProject do
         "compile --warnings-as-errors",
         "format --check-formatted",
         "credo --strict"
-      ]
+      ],
+      # Database-specific test commands
+      "test.lite": ["test --only lite"],
+      "test.postgres": ["test --only postgres"]
     ]
   end
 end
