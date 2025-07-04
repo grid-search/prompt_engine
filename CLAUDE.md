@@ -17,11 +17,10 @@ PromptEngine is an **Elixir library** (not a standalone application) designed as
 - `mix test test/specific_test.exs:42` - Run test at specific line
 
 ### Code Quality (Custom Aliases)
-- `mix lint` - Development linting (formats code, runs Credo strict, Dialyzer with ignore-exit-status)
-- `mix lint.ci` - CI/CD strict linting (checks formatting, runs Credo strict, Dialyzer)
+- `mix lint` - Development linting (formats code, runs Credo strict)
+- `mix lint.ci` - CI/CD strict linting (checks formatting, runs Credo strict)
 - `mix format` - Format code
 - `mix credo --strict` - Static code analysis
-- `mix dialyzer` - Type analysis (first run builds PLT, takes ~3 minutes)
 
 ### Igniter Integration
 - `mix igniter.install prompt_engine` - Install this library into a Phoenix app
@@ -33,23 +32,47 @@ PromptEngine is an **Elixir library** (not a standalone application) designed as
 This is a **library package** that gets installed into existing Phoenix applications, not a standalone app. Key architectural decisions:
 
 - **Phoenix LiveView Integration**: Uses LiveView for real-time prompt management interface
-- **Database Integration**: Ecto/PostgreSQL for prompt storage and versioning
+- **Database Integration**: Ecto/SQLite for prompt storage and versioning (PostgreSQL support planned)
 - **LLM Integration**: LangChain for executing prompts with various LLM providers  
 - **MCP Tools Support**: Allows specifying Model Context Protocol tools that prompts can access
 - **Installation Automation**: Igniter handles automatic setup and database migrations
 
+### Data Model Architecture
+
+**Prompt Management:**
+- **Prompts**: Top-level containers with name and description
+- **Prompt Versions**: Versioned instances with LLM configuration and state management
+- **Messages**: Embedded schemas for conversation structure (system, user, assistant, tool roles)
+
+**State Management:**
+- Draft → Published → Archived workflow
+- Only one published version per prompt allowed
+- Automatic version numbering
+
+**Provider Support:**
+- OpenAI, Anthropic, Google, Azure, HuggingFace
+- Flexible model settings as JSON maps
+- Provider-specific optimizations
+
+**Database Schema:**
+- UUID primary keys for all entities
+- Proper foreign key constraints and indexes
+- Embedded JSON for messages and model settings
+- Unique constraints for business rules (one published version per prompt)
+
 ### Key Dependencies
 - **Phoenix LiveView 1.0+**: Real-time UI framework
-- **Ecto SQL 3.12+**: Database toolkit and PostgreSQL adapter
+- **Ecto SQL 3.12+**: Database toolkit and adapters
 - **LangChain 0.3+**: LLM provider integrations
 - **Igniter 0.6+**: Installation automation and project patching
 - **Jason**: JSON handling
 - **Telemetry**: Application monitoring
+- **Ecto SQLite3**: SQLite adapter for testing (PostgreSQL for production)
 
 ### Configuration Notes
-- **PLT Files**: Dialyzer PLT files are gitignored and stored in `priv/plts/`
 - **Test Environment**: Lint commands run in `:test` environment
 - **Elixir Version**: Requires Elixir ~> 1.16
+- **Database Support**: Currently SQLite for testing, PostgreSQL support planned
 
 ## Required Practices
 
@@ -58,7 +81,6 @@ This is a **library package** that gets installed into existing Phoenix applicat
 - ALWAYS TRIM TRAILING WHITESPACE!!!
 - Code formatting (`mix format --check-formatted`)
 - Static analysis (`mix credo --strict`)
-- Type analysis (`mix dialyzer`)
 
 ### Elixir Anti-Patterns to Avoid
 

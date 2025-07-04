@@ -1,30 +1,35 @@
 # PromptEngine
 
-> [!WARNING]
->
-> This is still experimental. Do not use or install.
+A Phoenix/Ecto plugin for managing prompts with versioning, publishing, and LLM execution capabilities.
 
-## Project goal
+## Overview
 
-This package is similar to Oban Web in that it is a plugin for phoenix and ecto
-projects to provide a live view for managing prompts within your application.
-Prompts will be versioned, publishable, and executable through the live view
-and allow for specifying MCP tools that the prompt may access as well as
-specifying variable values to make iteration easier. Install with
+PromptEngine is similar to Oban Web in that it provides a LiveView interface for managing prompts within your Phoenix applications. It offers:
 
-```
-mix igniter.install prompt_engine
-```
-
-This will ensure that prompt engine is added to your mix.exs file and properly
-setup in your phoenix application. Prompts will be executed using lang chain so
-that you may integrate with your desired LLM providers. This will also create
-the necessary database migration for storing prompts in your database.
+- **Prompt Management**: Create, update, and organize prompts with descriptive metadata
+- **Versioning System**: Multiple versions per prompt with draft/published/archived states
+- **LLM Integration**: Execute prompts through LangChain with support for multiple providers (OpenAI, Anthropic, Google, Azure, HuggingFace)
+- **MCP Tools Support**: Specify Model Context Protocol tools that prompts can access
+- **Database Storage**: Persistent storage with automatic migrations
+- **Live Updates**: Real-time interface updates with Phoenix LiveView
 
 ## Installation
 
-If [available in Hex](https://hex.pm/docs/publish), the package can be installed
-by adding `prompt_engine` to your list of dependencies in `mix.exs`:
+Install PromptEngine using Igniter for automated setup:
+
+```bash
+mix igniter.install prompt_engine
+```
+
+This will:
+- Add `prompt_engine` to your `mix.exs` dependencies
+- Set up the necessary configuration in your Phoenix application
+- Create database migrations for prompt storage
+- Configure LangChain integration
+
+### Manual Installation
+
+Alternatively, add `prompt_engine` to your dependencies in `mix.exs`:
 
 ```elixir
 def deps do
@@ -34,34 +39,105 @@ def deps do
 end
 ```
 
-Documentation can be generated with [ExDoc](https://github.com/elixir-lang/ex_doc)
-and published on [HexDocs](https://hexdocs.pm). Once published, the docs can
-be found at <https://hexdocs.pm/prompt_engine>.
+## Usage
+
+### Basic Prompt Management
+
+```elixir
+# Create a new prompt
+{:ok, prompt} = PromptEngine.Prompts.create_prompt(repo, %{
+  name: "email_template",
+  description: "Customer email template"
+})
+
+# Create a version of the prompt
+{:ok, version} = PromptEngine.Prompts.create_prompt_version(repo, prompt.id, %{
+  provider: :openai,
+  model_name: "gpt-4",
+  messages: [
+    %{role: :system, content: "You are a helpful assistant."},
+    %{role: :user, content: "Write a professional email."}
+  ],
+  model_settings: %{temperature: 0.7}
+})
+
+# Publish the version
+{:ok, published_version} = PromptEngine.Prompts.publish_version(repo, version)
+```
+
+### Version Management
+
+```elixir
+# Get the published version
+published = PromptEngine.Prompts.get_published_version(repo, prompt.id)
+
+# Get the latest version
+latest = PromptEngine.Prompts.get_latest_version(repo, prompt.id)
+
+# List all versions
+versions = PromptEngine.Prompts.list_prompt_versions(repo, prompt.id)
+
+# Archive a version
+{:ok, archived} = PromptEngine.Prompts.archive_version(repo, version)
+```
+
+## Architecture
+
+### Core Components
+
+- **Prompts**: Top-level containers with name and description
+- **Prompt Versions**: Versioned instances with LLM configuration
+- **Messages**: Individual conversation parts (system, user, assistant, tool)
+- **State Management**: Draft → Published → Archived workflow
+
+### Database Schema
+
+```elixir
+# Prompts table
+%Prompt{
+  id: UUID,
+  name: String,
+  description: String,
+  versions: [PromptVersion]
+}
+
+# Prompt Versions table
+%PromptVersion{
+  id: UUID,
+  prompt_id: UUID,
+  version_number: Integer,
+  state: :draft | :published | :archived,
+  provider: :openai | :anthropic | :google | :azure | :huggingface,
+  messages: [Message],
+  model_name: String,
+  model_settings: Map
+}
+```
+
+## License
+
+This project is licensed under the Mozilla Public License 2.0. See the [LICENSE](LICENSE) file for details.
 
 ## Database Support
 
-### Current Implementation
-PromptEngine currently supports **SQLite** for development and testing environments. This provides a lightweight, zero-configuration database solution that works well for:
-- Local development and testing
-- CI/CD pipelines
-- Simple deployments
+PromptEngine currently supports **SQLite** for development and testing environments. PostgreSQL support is planned for production deployments.
 
-### Database Roadmap
+## Database Roadmap
 
-**Phase 1: SQLite Foundation (Current)**
+### Phase 1: SQLite Foundation (Current)
 - ✅ SQLite adapter for testing
 - ✅ Core schema and migrations
 - ✅ Full CRUD operations
 - ✅ Version management and state transitions
 
-**Phase 2: PostgreSQL Support (Planned)**
+### Phase 2: PostgreSQL Support (Planned)
 - Primary production database support
 - Advanced indexing and performance optimizations
 - JSONB support for model settings
 - Concurrent testing with SQL.Sandbox
 - Production-ready migrations
 
-**Phase 3: MySQL Support (Future)**
+### Phase 3: MySQL Support (Future)
 - Alternative production database option
 - MySQL-specific optimizations
 - Cross-database compatibility testing
