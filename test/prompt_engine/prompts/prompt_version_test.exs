@@ -1,5 +1,5 @@
 defmodule PromptEngine.Prompts.PromptVersionTest do
-  use ExUnit.Case, async: true
+  use PromptEngine.Case, async: true
 
   alias PromptEngine.Prompts.PromptVersion
 
