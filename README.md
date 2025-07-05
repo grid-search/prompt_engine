@@ -1,5 +1,7 @@
 # PromptEngine
 
+[![CircleCI](https://dl.circleci.com/status-badge/img/gh/grid-search/prompt_engine/tree/main.svg?style=svg)](https://dl.circleci.com/status-badge/redirect/gh/grid-search/prompt_engine/tree/main)
+
 A Phoenix/Ecto plugin for managing prompts with versioning, publishing, and LLM execution capabilities.
 
 ## Overview

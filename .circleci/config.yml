@@ -97,6 +97,13 @@ commands:
               echo "Waiting for PostgreSQL..."
               sleep 2
             done
+      - run:
+          name: Create and migrate databases
+          command: |
+            mix ecto.create -r PromptEngine.Test.PGRepo
+            mix ecto.create -r PromptEngine.Test.PGMigrationRepo
+            mix ecto.migrate -r PromptEngine.Test.PGRepo
+            mix ecto.migrate -r PromptEngine.Test.PGMigrationRepo
 
 # Define jobs
 jobs:
