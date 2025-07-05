@@ -98,12 +98,8 @@ commands:
               sleep 2
             done
       - run:
-          name: Create and migrate databases
-          command: |
-            mix ecto.create -r PromptEngine.Test.PGRepo
-            mix ecto.create -r PromptEngine.Test.PGMigrationRepo
-            mix ecto.migrate -r PromptEngine.Test.PGRepo
-            mix ecto.migrate -r PromptEngine.Test.PGMigrationRepo
+          name: Create databases
+          command: MIX_ENV=test mix ecto.create
 
 # Define jobs
 jobs:
