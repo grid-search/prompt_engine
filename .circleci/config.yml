@@ -87,9 +87,16 @@ commands:
     description: "Wait for PostgreSQL to be ready"
     steps:
       - run:
+          name: Install PostgreSQL client
+          command: |
+            apt-get update && apt-get install -y postgresql-client
+      - run:
           name: Wait for PostgreSQL
           command: |
-            dockerize -wait tcp://localhost:5432 -timeout 1m
+            until pg_isready -h localhost -p 5432 -U postgres; do
+              echo "Waiting for PostgreSQL..."
+              sleep 2
+            done
 
 # Define jobs
 jobs:
