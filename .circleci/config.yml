@@ -4,7 +4,7 @@ version: 2.1
 executors:
   elixir-1-16:
     docker:
-      - image: cimg/elixir:1.16-otp-25
+      - image: cimg/elixir:1.16
         environment:
           MIX_ENV: test
       - image: postgres:17
@@ -16,7 +16,7 @@ executors:
 
   elixir-1-17:
     docker:
-      - image: cimg/elixir:1.17-otp-26
+      - image: cimg/elixir:1.17
         environment:
           MIX_ENV: test
       - image: postgres:17
@@ -28,7 +28,7 @@ executors:
 
   elixir-1-18:
     docker:
-      - image: cimg/elixir:1.18-otp-27
+      - image: cimg/elixir:1.18
         environment:
           MIX_ENV: test
       - image: postgres:17
@@ -40,7 +40,7 @@ executors:
 
   elixir-lint:
     docker:
-      - image: cimg/elixir:1.18-otp-27
+      - image: cimg/elixir:1.18
         environment:
           MIX_ENV: test
     working_directory: ~/repo
