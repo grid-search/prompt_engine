@@ -4,7 +4,7 @@ version: 2.1
 executors:
   elixir-1-16:
     docker:
-      - image: elixir:1.16.3-otp-25
+      - image: cimg/elixir:1.16-otp-25
         environment:
           MIX_ENV: test
       - image: postgres:17
@@ -16,7 +16,7 @@ executors:
 
   elixir-1-17:
     docker:
-      - image: elixir:1.17.3-otp-26
+      - image: cimg/elixir:1.17-otp-26
         environment:
           MIX_ENV: test
       - image: postgres:17
@@ -28,7 +28,7 @@ executors:
 
   elixir-1-18:
     docker:
-      - image: elixir:1.18.0-otp-27
+      - image: cimg/elixir:1.18-otp-27
         environment:
           MIX_ENV: test
       - image: postgres:17
@@ -40,7 +40,7 @@ executors:
 
   elixir-lint:
     docker:
-      - image: elixir:1.18.0-otp-27
+      - image: cimg/elixir:1.18-otp-27
         environment:
           MIX_ENV: test
     working_directory: ~/repo
@@ -78,6 +78,10 @@ commands:
       - run:
           name: Compile application
           command: mix compile --warnings-as-errors
+      - run:
+          name: Force compile exqlite
+          command: |
+            mix deps.compile exqlite --force
       - save_cache:
           key: build-cache-v1-{{ .Environment.CIRCLE_JOB }}-{{ .Branch }}-{{ .Revision }}
           paths:
@@ -100,9 +104,9 @@ commands:
       - run:
           name: Create and migrate databases
           command: |
-            MIX_ENV=test mix ecto.create
-            MIX_ENV=test mix ecto.migrate -r PromptEngine.Test.PGRepo
-            MIX_ENV=test mix ecto.migrate -r PromptEngine.Test.PGMigrationRepo
+            mix ecto.create
+            mix ecto.migrate -r PromptEngine.Test.PGRepo
+            mix ecto.migrate -r PromptEngine.Test.PGMigrationRepo
 
 # Define jobs
 jobs:
