@@ -4,7 +4,7 @@ version: 2.1
 executors:
   elixir-1-16:
     docker:
-      - image: cimg/elixir:1.16
+      - image: elixir:1.16.3-otp-25
         environment:
           MIX_ENV: test
       - image: postgres:17
@@ -16,7 +16,7 @@ executors:
 
   elixir-1-17:
     docker:
-      - image: cimg/elixir:1.17
+      - image: elixir:1.17.3-otp-26
         environment:
           MIX_ENV: test
       - image: postgres:17
@@ -28,7 +28,7 @@ executors:
 
   elixir-1-18:
     docker:
-      - image: cimg/elixir:1.18
+      - image: elixir:1.18.0-otp-27
         environment:
           MIX_ENV: test
       - image: postgres:17
@@ -40,7 +40,7 @@ executors:
 
   elixir-lint:
     docker:
-      - image: cimg/elixir:1.18
+      - image: elixir:1.18.0-otp-27
         environment:
           MIX_ENV: test
     working_directory: ~/repo
@@ -60,6 +60,11 @@ commands:
             - build-cache-v1-{{ .Environment.CIRCLE_JOB }}-{{ .Branch }}-{{ .Revision }}
             - build-cache-v1-{{ .Environment.CIRCLE_JOB }}-{{ .Branch }}-
             - build-cache-v1-{{ .Environment.CIRCLE_JOB }}-
+      - run:
+          name: Update OS dependencies
+          command: |
+            apt-get update
+            apt-get install -y build-essential cmake
       - run:
           name: Install Hex and Rebar
           command: |
@@ -115,11 +120,8 @@ jobs:
     steps:
       - setup_elixir
       - run:
-          name: Check formatting
-          command: mix format --check-formatted
-      - run:
-          name: Run Credo
-          command: mix credo --strict
+          name: Check for compiler warnings, formatting issues, and linting
+          command: mix lint.ci
 
   test-elixir-1-16:
     executor: elixir-1-16
