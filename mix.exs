@@ -34,10 +34,8 @@ defmodule PromptEngine.MixProject do
   defp deps do
     [
       # Phoenix LiveView for real-time interface
-      {:ecto_sql, "~> 3.12"},
-      {:phoenix_ecto, "~> 4.6"},
       {:phoenix_live_view, "~> 1.0"},
-      {:postgrex, "~> 0.19"},
+      {:tailwind, "~> 0.2", runtime: false},
 
       # Installation automation
       {:igniter, "~> 0.6"},
@@ -50,7 +48,10 @@ defmodule PromptEngine.MixProject do
       # Development and testing tools
       {:credo, "~> 1.7", only: [:dev, :test], runtime: false},
 
-      # SQLite adapter for testing
+      # Database adapters
+      {:ecto_sql, "~> 3.12"},
+      {:phoenix_ecto, "~> 4.6"},
+      {:postgrex, "~> 0.19", only: [:test], runtime: false},
       {:ecto_sqlite3, "~> 0.17", only: [:test], runtime: false}
     ]
   end
