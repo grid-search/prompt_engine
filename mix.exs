@@ -34,8 +34,10 @@ defmodule PromptEngine.MixProject do
   defp deps do
     [
       # Phoenix LiveView for real-time interface
+      {:phoenix, "~> 1.7"},
+      {:phoenix_html, "~> 3.3 or ~> 4.0"},
+      {:phoenix_pubsub, "~> 2.1"},
       {:phoenix_live_view, "~> 1.0"},
-      {:tailwind, "~> 0.2", runtime: false},
 
       # Installation automation
       {:igniter, "~> 0.6"},
@@ -47,18 +49,23 @@ defmodule PromptEngine.MixProject do
 
       # Development and testing tools
       {:credo, "~> 1.7", only: [:dev, :test], runtime: false},
+      {:esbuild, "~> 0.8", only: :dev, runtime: false},
+      {:tailwind, "~> 0.2", only: :dev, runtime: false},
+      {:phoenix_live_reload, "~> 1.2", only: :dev},
 
       # Database adapters
       {:ecto_sql, "~> 3.12"},
       {:phoenix_ecto, "~> 4.6"},
-      {:postgrex, "~> 0.19", only: [:test], runtime: false},
-      {:ecto_sqlite3, "~> 0.17", only: [:test], runtime: false}
+      {:postgrex, "~> 0.19", only: :test, runtime: false},
+      {:ecto_sqlite3, "~> 0.17", only: :test, runtime: false}
     ]
   end
 
   # Run "mix help compile.aliases" to learn about aliases.
   defp aliases do
     [
+      # Assets
+      "assets.compile": ["tailwind prompt_engine_web", "esbuild default"],
       # Local development - more lenient
       lint: [
         "compile --warnings-as-errors",

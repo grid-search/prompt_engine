@@ -1,0 +1,13 @@
+{
+  "name": "prompt_engine_assets",
+  "version": "0.1.0",
+  "private": true,
+  "description": "JS dependencies for prompt engine",
+  "repository": "...",
+  "dependencies": {
+    "nprogress": "^0.2.0",
+    "phoenix": "file:../deps/phoenix",
+    "phoenix_html": "file:../deps/phoenix_html",
+    "phoenix_live_view": "file:../deps/phoenix_live_view"
+  }
+}

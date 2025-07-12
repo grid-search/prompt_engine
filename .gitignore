@@ -31,3 +31,6 @@ prompt_engine-*.tar
 
 # LSP
 .lexical
+
+# Node modules in assets directory
+assets/node_modules

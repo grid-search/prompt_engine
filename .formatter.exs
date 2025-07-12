@@ -1,6 +1,6 @@
 # Used by "mix format"
 [
-  import_deps: [:ecto, :ecto_sql, :phoenix_ecto, :phoenix_live_view],
+  import_deps: [:ecto, :ecto_sql, :phoenix, :phoenix_ecto, :phoenix_live_view],
   subdirectories: ["priv/*/migrations"],
   plugins: [Phoenix.LiveView.HTMLFormatter],
   inputs: [
